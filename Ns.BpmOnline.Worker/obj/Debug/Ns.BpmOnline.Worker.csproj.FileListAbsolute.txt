@@ -1,0 +1,15 @@
+C:\Users\almaz\source\repos\Ns.BpmOnline.Worker\Ns.BpmOnline.Worker\obj\Debug\Ns.BpmOnline.Worker.csproj.CoreCompileInputs.cache
+C:\Users\almaz\source\repos\Ns.BpmOnline.Worker\Ns.BpmOnline.Worker\bin\Debug\Ns.BpmOnline.Worker.exe.config
+C:\Users\almaz\source\repos\Ns.BpmOnline.Worker\Ns.BpmOnline.Worker\bin\Debug\Ns.BpmOnline.Worker.exe
+C:\Users\almaz\source\repos\Ns.BpmOnline.Worker\Ns.BpmOnline.Worker\bin\Debug\Ns.BpmOnline.Worker.pdb
+C:\Users\almaz\source\repos\Ns.BpmOnline.Worker\Ns.BpmOnline.Worker\bin\Debug\Microsoft.Diagnostics.Tracing.EventSource.dll
+C:\Users\almaz\source\repos\Ns.BpmOnline.Worker\Ns.BpmOnline.Worker\bin\Debug\RabbitMQ.Client.dll
+C:\Users\almaz\source\repos\Ns.BpmOnline.Worker\Ns.BpmOnline.Worker\bin\Debug\Microsoft.Diagnostics.Tracing.EventSource.xml
+C:\Users\almaz\source\repos\Ns.BpmOnline.Worker\Ns.BpmOnline.Worker\bin\Debug\RabbitMQ.Client.xml
+C:\Users\almaz\source\repos\Ns.BpmOnline.Worker\Ns.BpmOnline.Worker\obj\Debug\Ns.BpmOnline.Worker.csproj.CopyComplete
+C:\Users\almaz\source\repos\Ns.BpmOnline.Worker\Ns.BpmOnline.Worker\obj\Debug\Ns.BpmOnline.Worker.exe
+C:\Users\almaz\source\repos\Ns.BpmOnline.Worker\Ns.BpmOnline.Worker\obj\Debug\Ns.BpmOnline.Worker.pdb
+C:\Users\almaz\source\repos\Ns.BpmOnline.Worker\Ns.BpmOnline.Worker\obj\Debug\Ns.BpmOnline.Worker.csproj.GenerateResource.cache
+C:\Users\almaz\source\repos\Ns.BpmOnline.Worker\Ns.BpmOnline.Worker\obj\Debug\Ns.BpmOnline.Worker.csprojAssemblyReference.cache
+C:\Users\almaz\source\repos\Ns.BpmOnline.Worker\Ns.BpmOnline.Worker\obj\Debug\Ns.BpmOnline.Worker.ProjectInstaller.resources
+C:\Users\almaz\source\repos\Ns.BpmOnline.Worker\Ns.BpmOnline.Worker\obj\Debug\Ns.BpmOnline.Worker.WorkerService.resources
