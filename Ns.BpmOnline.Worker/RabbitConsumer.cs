@@ -17,13 +17,13 @@ namespace Ns.BpmOnline.Worker
 
     public abstract class RabbitConsumer : IRabbitConsumer
     {
-        private IConnection _connection;
-        protected IExecutor _executor;
+        protected IConnection connection;
+        protected IExecutor executor;
         private IModel channel;
 
-        public RabbitConsumer(IConnection connection)
+        public RabbitConsumer(IConnection _connection)
         {
-            _connection = connection;
+            connection = _connection;
         }
 
         public void Register(string exchangeName, string queueName, string routingKey)
@@ -47,12 +47,12 @@ namespace Ns.BpmOnline.Worker
 
         public virtual void onMessage(object model, BasicDeliverEventArgs ea)
         {
-            _executor.Execute(ea.Body);
+            executor.Execute(ea.Body);
         }
 
         private IModel GetRabbitChannel(string exchangeName, string queueName, string routingKey)
         {
-            IModel model = _connection.CreateModel();
+            IModel model = connection.CreateModel();
             model.ExchangeDeclare(exchangeName, ExchangeType.Direct);
             model.QueueDeclare(queueName, false, false, false, null);
             model.QueueBind(queueName, exchangeName, routingKey, null);

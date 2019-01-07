@@ -27,7 +27,7 @@ namespace Ns.BpmOnline.Worker
 
         protected override object GetElementKey(ConfigurationElement element)
         {
-            return ((ServerElement)(element)).ServerName;
+            return ((ServerElement)(element)).Name;
         }
 
         public ServerElement this[int idx]
@@ -44,7 +44,7 @@ namespace Ns.BpmOnline.Worker
     {
 
         [ConfigurationProperty("name", DefaultValue = "", IsKey = true, IsRequired = true)]
-        public string ServerName
+        public string Name
         {
             get { return ((string)(base["name"])); }
             set { base["name"] = value; }

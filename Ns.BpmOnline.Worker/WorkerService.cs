@@ -19,8 +19,9 @@ namespace Ns.BpmOnline.Worker
 
     public partial class WorkerService : ServiceBase
     {
-        private IConnection _connection;
+        private IConnection connection;
         private List<IRabbitConsumer> _consumers;
+        private ServerElement targetBpmServer;
 
         public WorkerService()
         {
@@ -29,16 +30,24 @@ namespace Ns.BpmOnline.Worker
 
         protected override void OnStart(string[] args)
         {
-            _connection = RabbitConnector.GetConnection();
+            Configuration cfg = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            BpmServersConfigSection section = (BpmServersConfigSection)cfg.Sections["BpmServers"];
+            targetBpmServer = section.ServerItems[0];
+
+            connection = RabbitConnector.GetConnection();
             RegisterConsumers();
 
         }
+
 
         private void RegisterConsumers()
         {
             _consumers = new List<IRabbitConsumer>()
             {
-                new BpmProcessExecuteConsumer(_connection)
+                new CommandConsumer(connection, new BpmProcessExecutor(targetBpmServer),
+                                        targetBpmServer.Name, "PROCESS_EXECUTOR", "PROCESS_EXECUTOR"),
+                new CommandConsumer(connection, new BpmServiceExecutor(targetBpmServer),
+                                        targetBpmServer.Name, "SERVICE_EXECUTOR", "SERVICE_EXECUTOR")
             };
         }
 
@@ -48,7 +57,7 @@ namespace Ns.BpmOnline.Worker
             {
                 consumer.Close();
             }
-            _connection.Close();
+            connection.Close();
         }
     }
 }
