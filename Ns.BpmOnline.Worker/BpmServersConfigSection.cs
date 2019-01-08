@@ -42,6 +42,12 @@ namespace Ns.BpmOnline.Worker
 
     public class ServerElement : ConfigurationElement
     {
+        [ConfigurationProperty("type", DefaultValue = "", IsKey = true, IsRequired = true)]
+        public string Type
+        {
+            get { return ((string)(base["type"])); }
+            set { base["type"] = value; }
+        }
 
         [ConfigurationProperty("name", DefaultValue = "", IsKey = true, IsRequired = true)]
         public string Name
@@ -70,6 +76,57 @@ namespace Ns.BpmOnline.Worker
             get { return ((string)(base["pass"])); }
             set { base["pass"] = value; }
         }
+
+        [ConfigurationProperty("path", DefaultValue = "", IsKey = false, IsRequired = false)]
+        public string Path
+        {
+            get { return ((string)(base["path"])); }
+            set { base["path"] = value; }
+        }
+
+        [ConfigurationProperty("svnUri", DefaultValue = "", IsKey = false, IsRequired = false)]
+        public string SvnUri
+        {
+            get { return ((string)(base["svnUri"])); }
+            set { base["svnUri"] = value; }
+        }
+
+        [ConfigurationProperty("svnLogin", DefaultValue = "", IsKey = false, IsRequired = false)]
+        public string SvnLogin
+        {
+            get { return ((string)(base["svnLogin"])); }
+            set { base["svnLogin"] = value; }
+        }
+
+        [ConfigurationProperty("svnPass", DefaultValue = "", IsKey = false, IsRequired = false)]
+        public string SvnPassword
+        {
+            get { return ((string)(base["svnPass"])); }
+            set { base["svnPass"] = value; }
+        }
+
+        [ConfigurationProperty("administrationHost", DefaultValue = "", IsKey = false, IsRequired = false)]
+        public string AdministrationHost
+        {
+            get { return ((string)(base["administrationHost"])); }
+            set { base["administrationHost"] = value; }
+        }
+
+        [ConfigurationProperty("administrationHostLogin", DefaultValue = "", IsKey = false, IsRequired = false)]
+        public string AdministrationHostLogin
+        {
+            get { return ((string)(base["administrationHostLogin"])); }
+            set { base["administrationHostLogin"] = value; }
+        }
+
+        [ConfigurationProperty("administrationHostPass", DefaultValue = "", IsKey = false, IsRequired = false)]
+        public string AdministrationHostPassword
+        {
+            get { return ((string)(base["administrationHostPass"])); }
+            set { base["administrationHostPass"] = value; }
+        }
+
+
 
     }
 }

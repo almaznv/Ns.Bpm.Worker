@@ -26,7 +26,7 @@ namespace Ns.BpmOnline.Worker
             connection = _connection;
         }
 
-        public void Register(string exchangeName, string queueName, string routingKey)
+        public virtual void Register(string exchangeName, string queueName, string routingKey)
         {
             channel = GetRabbitChannel(exchangeName, queueName, routingKey);
 
@@ -50,7 +50,7 @@ namespace Ns.BpmOnline.Worker
             executor.Execute(ea.Body);
         }
 
-        private IModel GetRabbitChannel(string exchangeName, string queueName, string routingKey)
+        protected virtual IModel GetRabbitChannel(string exchangeName, string queueName, string routingKey)
         {
             IModel model = connection.CreateModel();
             model.ExchangeDeclare(exchangeName, ExchangeType.Direct);

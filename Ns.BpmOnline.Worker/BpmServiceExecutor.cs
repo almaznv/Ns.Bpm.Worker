@@ -9,40 +9,24 @@ using Newtonsoft.Json;
 namespace Ns.BpmOnline.Worker
 {
 
-    public class BpmServiceExecutor : IExecutor
+    public class BpmServiceExecutor : Executor, IExecutor
     {
-        private ServerElement _server;
 
-        public BpmServiceExecutor(ServerElement server)
-        {
-            _server = server;
-        }
+        public BpmServiceExecutor(ServerElement server) : base(server) {}
 
         public void Execute(byte[] data)
         {
-            var serviceParameters = new Dictionary<string, string>() { };
-            var parametersJson = Encoding.UTF8.GetString(data);
+            Dictionary<string, string> serviceParameters = DecodeParameters(data);
+            Execute(serviceParameters);
+        }
 
-            try
-            {
-                ExecuteParameters desirializedParameters = JsonConvert.DeserializeObject<ExecuteParameters>(parametersJson);
+        public void Execute(Dictionary<string, string> serviceParameters)
+        {
+            string serviceName = GetByKey(serviceParameters, "ServiceName");
 
-                foreach (ExecuteParameter param in desirializedParameters.Parameters)
-                {
-                    serviceParameters.Add(param.Key, param.Value);
-                }
-            }
-            catch (Exception e)
-            {
-                Logger.Log("Parsing service parameters failed : " + e.Message);
-                return;
-            }
-
-            var message = Encoding.UTF8.GetString(data);
-
-            var bpmConnector = new BpmConnector(_server.Host);
-            bpmConnector.TryLogin(_server.Login, _server.Password);
-            bpmConnector.RunService("GET", "NsTestService/Test", serviceParameters);
+            var bpmConnector = new BpmConnector(server.Host);
+            bpmConnector.TryLogin(server.Login, server.Password);
+            bpmConnector.RunService("POST", serviceName, serviceParameters);
         }
     }
 }

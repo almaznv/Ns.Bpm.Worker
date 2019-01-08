@@ -58,11 +58,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BpmConfigurationUpdateExecutor.cs" />
+    <Compile Include="BpmConfigurationUpdater.cs" />
     <Compile Include="BpmConnector.cs" />
     <Compile Include="CommandConsumer.cs" />
     <Compile Include="BpmProcessExecutor.cs" />
     <Compile Include="BpmServersConfigSection.cs" />
     <Compile Include="BpmServiceExecutor.cs" />
+    <Compile Include="Executor.cs" />
+    <Compile Include="IExecutor.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="ProjectInstaller.cs">
       <SubType>Component</SubType>

@@ -16,7 +16,9 @@ namespace Ns.BpmOnline.Worker
                                         string exchangeName, string queueName, string routingKey) : base(connectionInstance)
         {
             executor = commandExecutorInstance;
-        
+
+            queueName = String.Format("{0}_{1}", exchangeName, queueName);
+
             Register(exchangeName, queueName, routingKey);
         }
     }

@@ -8,56 +8,25 @@ using Newtonsoft.Json;
 
 namespace Ns.BpmOnline.Worker
 {
-    public interface IExecutor
-    {
-        void Execute(byte[] data);
-    }
 
-    public class ExecuteParameter
+    public class BpmProcessExecutor : Executor, IExecutor
     {
-        public string Key { get; set; }
-        public string Value { get; set; }
-    }
 
-    public class ExecuteParameters
-    {
-        public IList<ExecuteParameter> Parameters { get; set; }
-    }
-
-    public class BpmProcessExecutor : IExecutor
-    {
-        private ServerElement _server;
-
-        public BpmProcessExecutor(ServerElement server)
-        {
-            _server = server;
-        }
+        public BpmProcessExecutor(ServerElement server) : base(server) { }
 
         public void Execute(byte[] data)
         {
-            var processParameters = new Dictionary<string, string>() { };
-            var parametersJson = Encoding.UTF8.GetString(data);
+            Dictionary<string, string> processParameters = DecodeParameters(data);
+            Execute(processParameters);
+        }
 
-            try
-            {
-                ExecuteParameters desirializedParameters = JsonConvert.DeserializeObject<ExecuteParameters>(parametersJson);
+        public void Execute(Dictionary<string, string> processParameters)
+        {
+            string processName = GetByKey(processParameters, "ProcessName");
 
-                foreach (ExecuteParameter param in desirializedParameters.Parameters)
-                {
-                    processParameters.Add(param.Key, param.Value);
-                }
-            } catch (Exception e)
-            {
-                Logger.Log("Parsing process parameters failed : " + e.Message);
-                return;
-            }
-
-            var bpmConnector = new BpmConnector(_server.Host);
-            bpmConnector.TryLogin(_server.Login, _server.Password);
-
-            Logger.Log("Run process");
-
-            bpmConnector.RunProcess("MqTestProcess", processParameters);
+            var bpmConnector = new BpmConnector(server.Host);
+            bpmConnector.TryLogin(server.Login, server.Password);
+            bpmConnector.RunProcess(processName, processParameters);
         }
     }
 }
