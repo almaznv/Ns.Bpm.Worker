@@ -8,7 +8,7 @@ using System.ServiceProcess;
 using System.Text;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-using System.Configuration;
+
 using System.Net;
 using System.IO;
 using System.Threading;
@@ -22,7 +22,6 @@ namespace Ns.BpmOnline.Worker
         private IConnection connection;
         private List<IRabbitConsumer> _consumers;
         private ServerElement targetBpmServer;
-        private ServerElement administrationBpmServer;
 
         public WorkerService()
         {
@@ -31,11 +30,8 @@ namespace Ns.BpmOnline.Worker
 
         protected override void OnStart(string[] args)
         {
-            Configuration cfg = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-            BpmServersConfigSection section = (BpmServersConfigSection)cfg.Sections["BpmServers"];
 
-            targetBpmServer = section.ServerItems.Cast<ServerElement>().FirstOrDefault(x => x.Type == "TargetHost");
-            administrationBpmServer = section.ServerItems.Cast<ServerElement>().FirstOrDefault(x => x.Type == "AdministrationHost");
+            targetBpmServer = Config.GetBpmServer("TargetHost");
 
             connection = RabbitConnector.GetConnection();
             RegisterConsumers();
@@ -47,12 +43,9 @@ namespace Ns.BpmOnline.Worker
         {
             _consumers = new List<IRabbitConsumer>()
             {
-                new CommandConsumer(connection, new BpmProcessExecutor(targetBpmServer),
-                                        targetBpmServer.Name, "PROCESS_EXECUTOR", "PROCESS_EXECUTOR"),
-                new CommandConsumer(connection, new BpmServiceExecutor(targetBpmServer),
-                                        targetBpmServer.Name, "SERVICE_EXECUTOR", "SERVICE_EXECUTOR"),
-                new CommandConsumer(connection, new BpmConfigurationUpdateExecutor(targetBpmServer, administrationBpmServer),
-                                        targetBpmServer.Name, "UPDATE_EXECUTOR", "UPDATE_EXECUTOR")
+                new CommandConsumer(connection, new BpmProcessExecutor(targetBpmServer), new ProcessExecutorRabbitSettings()),
+                new CommandConsumer(connection, new BpmServiceExecutor(targetBpmServer), new ServiceExecutorRabbitSettings()),
+                new CommandConsumer(connection, new BpmConfigurationUpdateExecutor(targetBpmServer, connection), new UpdateExecutorRabbitSettings())
             };
         }
 

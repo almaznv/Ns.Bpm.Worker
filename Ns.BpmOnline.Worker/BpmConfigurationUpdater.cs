@@ -12,6 +12,7 @@ namespace Ns.BpmOnline.Worker
     public class BpmConfigurationUpdater
     {
         private string _webAppPath;
+        private DownloadPackagesFromServerSettings _downloadPackagesFromServer;
         private DownloadPackagesFromSvnSettings _downloadFromSvnSettings;
         private UploadPackagesToServerSettings _uploadToServerSettings;
         private BuildConfigurationSettings _buildConfigurationSettings;
@@ -27,11 +28,13 @@ namespace Ns.BpmOnline.Worker
 
         public BpmConfigurationUpdater(
             string webAppPath,
+            DownloadPackagesFromServerSettings downloadPackagesFromServer,
             DownloadPackagesFromSvnSettings downloadFromSvnSettings,
             UploadPackagesToServerSettings uploadToServerSettings,
             BuildConfigurationSettings buildConfigurationSettings)
         {
             _webAppPath = webAppPath;
+            _downloadPackagesFromServer = downloadPackagesFromServer;
             _downloadFromSvnSettings = downloadFromSvnSettings;
             _uploadToServerSettings = uploadToServerSettings;
             _buildConfigurationSettings = buildConfigurationSettings;
@@ -40,10 +43,22 @@ namespace Ns.BpmOnline.Worker
 
         }
 
-        public void Run()
+        public void Run(bool needConfigurationBackup)
+        {
+            
+        }
+
+        public void RunUpdateFromSvn(bool needConfigurationBackup = false)
         {
             SetUpdateStatus("START");
-            RunProcessAsync(_downloadFromSvnSettings.Operation, _webAppPath, _downloadFromSvnSettings.GetCmdParametersStr());
+            if (needConfigurationBackup)
+            {
+                RunProcessAsync(_downloadPackagesFromServer.Operation, _webAppPath, _downloadPackagesFromServer.GetCmdParametersStr());
+            } else
+            {
+                RunProcessAsync(_downloadFromSvnSettings.Operation, _webAppPath, _downloadFromSvnSettings.GetCmdParametersStr());
+            }
+            
         }
 
         private void RunNextProcess(string processName, int exitCode)
@@ -57,8 +72,11 @@ namespace Ns.BpmOnline.Worker
 
             switch (processName)
             {
+                case "SaveDBContent":
+                    SetUpdateStatus("FINISHSTEP", true, "SaveDBContent");
+                    RunProcessAsync(_downloadFromSvnSettings.Operation, _webAppPath, _downloadFromSvnSettings.GetCmdParametersStr());
+                break;
                 case "SaveVersionSvnContent":
-                    
                     SetUpdateStatus("FINISHSTEP", true, "SaveVersionSvnContent");
                     RunProcessAsync(_uploadToServerSettings.Operation, _webAppPath, _uploadToServerSettings.GetCmdParametersStr());
                 break;
@@ -297,6 +315,34 @@ namespace Ns.BpmOnline.Worker
                "-logPath=\"{6}\" " +
                "-autoExit={7}"
                , WCpath, Operation, WorkspaceName, WebAppPath, AppPath, Force, LogPath, AutoExit);
+        }
+    }
+
+    public class DownloadPackagesFromServerSettings
+    {
+        private string WorkspaceName { get; } = "Default";
+        private string AutoExit { get; } = "true";
+
+        public string WCpath { get; set; }
+        public string Operation { get; } = "SaveDBContent";
+        public string DestinationPath { get; set; }
+        public string AppPath { get; set; }
+        public string LogPath { get; set; }
+        public string ContentTypes { get; } = "Repository";
+        public string PackageName { get; set; }
+
+        public string GetCmdParametersStr()
+        {
+            return String.Format(
+               "{0} -operation={1} " +
+               "-workspaceName={2} " +
+               "-destinationPath=\"{3}\" " +
+               "-webApplicationPath=\"{4}\" " +
+               "-contentTypes={5} " +
+               "-packageName={6} " +
+               "-logPath=\"{7}\" " +
+               "-autoExit={8}"
+               , WCpath, Operation, WorkspaceName, DestinationPath, AppPath, ContentTypes, PackageName, LogPath, AutoExit);
         }
     }
 }

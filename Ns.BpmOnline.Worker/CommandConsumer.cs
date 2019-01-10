@@ -12,14 +12,11 @@ namespace Ns.BpmOnline.Worker
     public class CommandConsumer: RabbitConsumer, IRabbitConsumer
     {
 
-        public CommandConsumer(IConnection connectionInstance, IExecutor commandExecutorInstance, 
-                                        string exchangeName, string queueName, string routingKey) : base(connectionInstance)
+        public CommandConsumer(IConnection connectionInstance, IExecutor commandExecutorInstance, IRabbitSettings rabbitSettings) : base(connectionInstance)
         {
             executor = commandExecutorInstance;
 
-            queueName = String.Format("{0}_{1}", exchangeName, queueName);
-
-            Register(exchangeName, queueName, routingKey);
+            Register(rabbitSettings.ExchangeName, rabbitSettings.QueueName, rabbitSettings.QueueName);
         }
     }
 }
