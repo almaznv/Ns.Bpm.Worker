@@ -75,6 +75,7 @@
   <ItemGroup>
     <Compile Include="BpmConfigurationUpdateExecutor.cs" />
     <Compile Include="BpmConfigurationUpdater.cs" />
+    <Compile Include="BpmConfigurationUpdateScript.cs" />
     <Compile Include="BpmConnector.cs" />
     <Compile Include="CommandConsumer.cs" />
     <Compile Include="BpmProcessExecutor.cs" />

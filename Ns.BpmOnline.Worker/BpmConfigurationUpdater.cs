@@ -17,6 +17,8 @@ namespace Ns.BpmOnline.Worker
         private UploadPackagesToServerSettings _uploadToServerSettings;
         private BuildConfigurationSettings _buildConfigurationSettings;
 
+        private bool _needDownloadPackages = false;
+
         private delegate void ProcessExitHandler(string processName, int exitCode);
         private event ProcessExitHandler ProcessExit;
 
@@ -61,6 +63,37 @@ namespace Ns.BpmOnline.Worker
             
         }
 
+        public void RestorePackagesFromLastBackup()
+        {
+            SetUpdateStatus("START");
+            _uploadToServerSettings.PackagesPath = _downloadPackagesFromServer.DestinationPath;
+            RunProcessAsync(_uploadToServerSettings.Operation, _webAppPath, _uploadToServerSettings.GetCmdParametersStr());
+
+        }
+
+        public void BuildStaticFilesOnly()
+        {
+            SetUpdateStatus("START");
+            RunProcessAsync(_buildConfigurationSettings.Operation, _webAppPath, _buildConfigurationSettings.GetCmdParametersStr());
+
+        }
+
+        private void RemovePackagesAvterSaveDBContent(string path, string packages)
+        {
+            string[] filePaths = Directory.GetFiles(path);
+            var packagesList = packages.Split(',');
+
+            foreach (string filePath in filePaths)
+            {
+                var name = Path.GetFileNameWithoutExtension((new FileInfo(filePath).Name));
+                if (!packagesList.Contains(name))
+                {
+                    File.Delete(filePath);
+                }
+
+            }
+        }
+
         private void RunNextProcess(string processName, int exitCode)
         {
             Logger.Log("finish " + processName + " "+ exitCode.ToString());
@@ -73,6 +106,7 @@ namespace Ns.BpmOnline.Worker
             switch (processName)
             {
                 case "SaveDBContent":
+                    RemovePackagesAvterSaveDBContent(_downloadPackagesFromServer.DestinationPath, _downloadPackagesFromServer.PackageName);
                     SetUpdateStatus("FINISHSTEP", true, "SaveDBContent");
                     RunProcessAsync(_downloadFromSvnSettings.Operation, _webAppPath, _downloadFromSvnSettings.GetCmdParametersStr());
                 break;
@@ -109,6 +143,7 @@ namespace Ns.BpmOnline.Worker
 
         public void SetPackages(string packageName)
         {
+            _downloadPackagesFromServer.PackageName = packageName;
             _downloadFromSvnSettings.PackageName = packageName;
             _uploadToServerSettings.PackageName = packageName;
         }
@@ -116,6 +151,11 @@ namespace Ns.BpmOnline.Worker
         public void SetBranch(string branchName)
         {
             _downloadFromSvnSettings.Branch = branchName;
+        }
+
+        public void SetNeedDownloadPackages(bool isNeed)
+        {
+            _needDownloadPackages = isNeed;
         }
 
         private static ProcessStartInfo GetProcessInfo(string workingDirectory, string cmdCommand)
@@ -146,6 +186,7 @@ namespace Ns.BpmOnline.Worker
                 ProcessOutput(cmdCommand);
                
                 ProcessStartInfo startInfo = GetProcessInfo(workingDirectory, cmdCommand);
+                startInfo.StandardOutputEncoding = Encoding.GetEncoding(866);
 
                 using (var process = new Process
                 {
@@ -270,7 +311,8 @@ namespace Ns.BpmOnline.Worker
         {
             return String.Format(
                 "{0} -operation={1} " +
-                "-packageName=\"{2}\" " +
+                //"-packageName=\"{2}\" " +
+                "{2}" + 
                 "-workspaceName={3} " +
                 "-sourcePath=\"{4}\" " +
                 "-destinationPath=\"{5}\" " +
@@ -286,7 +328,7 @@ namespace Ns.BpmOnline.Worker
                 "-confRuntimeParentDirectory=\"{15}\" " +
                 "-logPath=\"{16}\" " +
                 "-autoExit={17}"
-                , WCpath, Operation, PackageName, WorkspaceName, PackagesPath, WorkingTempPath,
+                , WCpath, Operation, String.Empty, WorkspaceName, PackagesPath, WorkingTempPath,
                 SkipConstraints, SkipValidateActions, RegenerateSchemaSources, UpdateDBStructure, UpdateSystemDBStructure, InstallPackageSqlScript, InstallPackageData, ContinueIfError,
                 AppPath, WebAppPath, LogPath, AutoExit);
         }

@@ -7,6 +7,7 @@ using System.Timers;
 using System.IO;
 using RabbitMQ.Client;
 using Newtonsoft.Json;
+using System.Configuration;
 
 namespace Ns.BpmOnline.Worker
 {
@@ -18,10 +19,6 @@ namespace Ns.BpmOnline.Worker
         private readonly IConnection _rabbitConnection;
         private readonly UpdateExecutorRabbitSettings _rabbitSettings;
 
-        private readonly DownloadPackagesFromServerSettings _downloadPackagesFromServer;
-        private readonly DownloadPackagesFromSvnSettings _downloadFromSvnSettings;
-        private readonly UploadPackagesToServerSettings _uploadToServerSettings;
-        private readonly BuildConfigurationSettings _buildConfigurationSettings;
         private readonly List<string> _outputList = new List<string>();
         private readonly List<BpmConfigurationUpdateStatus> _actionList = new List<BpmConfigurationUpdateStatus>();
         private readonly int BatchSendTimeout = 5000;
@@ -33,7 +30,7 @@ namespace Ns.BpmOnline.Worker
         private string WorkspaceConsoleDirectoryPath => Path.Combine(BpmServerPath, "DesktopBin", "WorkspaceConsole"); 
         private string WorkspaceConsoleExePath => Path.Combine(WorkspaceConsoleDirectoryPath, "Terrasoft.Tools.WorkspaceConsole.exe");
 
-        private string CurrentPath  => System.AppDomain.CurrentDomain.BaseDirectory;
+        private string CurrentPath => ConfigurationManager.AppSettings["tempFilesPath"];//System.AppDomain.CurrentDomain.BaseDirectory;
 
         private string DownloadServerPackagesPath => Path.Combine(CurrentPath, _serverName, "Download", "ServerPackages");
         private string DownloadPackagesPath => Path.Combine(CurrentPath, _serverName, "Download", "Packages");  
@@ -49,7 +46,10 @@ namespace Ns.BpmOnline.Worker
             _rabbitConnection = connection;
             _rabbitSettings = new UpdateExecutorRabbitSettings();
 
+        }
 
+        public (DownloadPackagesFromServerSettings, DownloadPackagesFromSvnSettings, UploadPackagesToServerSettings, BuildConfigurationSettings) CreateSettings()
+        {
             var svnSettings = new ProjectSvnSettings()
             {
                 Uri = server.SvnUri,
@@ -57,7 +57,7 @@ namespace Ns.BpmOnline.Worker
                 Password = server.SvnPassword
             };
 
-            _downloadPackagesFromServer = new DownloadPackagesFromServerSettings()
+            var downloadPackagesFromServer = new DownloadPackagesFromServerSettings()
             {
                 WCpath = WorkspaceConsoleExePath,
                 PackageName = DownloadPackagesPath,
@@ -66,7 +66,7 @@ namespace Ns.BpmOnline.Worker
                 DestinationPath = DownloadServerPackagesPath
             };
 
-            _downloadFromSvnSettings = new DownloadPackagesFromSvnSettings()
+            var downloadFromSvnSettings = new DownloadPackagesFromSvnSettings()
             {
                 Svn = svnSettings,
                 WCpath = WorkspaceConsoleExePath,
@@ -75,7 +75,7 @@ namespace Ns.BpmOnline.Worker
                 LogPath = LogsPath
             };
 
-            _uploadToServerSettings = new UploadPackagesToServerSettings()
+            var uploadToServerSettings = new UploadPackagesToServerSettings()
             {
                 WCpath = WorkspaceConsoleExePath,
                 PackagesPath = DownloadPackagesPath,
@@ -85,7 +85,7 @@ namespace Ns.BpmOnline.Worker
                 LogPath = LogsPath
             };
 
-            _buildConfigurationSettings = new BuildConfigurationSettings()
+            var buildConfigurationSettings = new BuildConfigurationSettings()
             {
                 WCpath = WorkspaceConsoleExePath,
                 WebAppPath = BpmServerPath,
@@ -93,7 +93,7 @@ namespace Ns.BpmOnline.Worker
                 LogPath = LogsPath
             };
 
-            
+            return (downloadPackagesFromServer, downloadFromSvnSettings, uploadToServerSettings, buildConfigurationSettings);
         }
 
         public void Execute(byte[] data)
@@ -112,19 +112,46 @@ namespace Ns.BpmOnline.Worker
 
         private void Execute(Dictionary<string, string> parameters)
         {
-            //todo :backup configuration, then restore if errors occured
-            
+
             InputParameters = parameters;
             string ID = GetByKey(parameters, "ID");
-            string packages = GetByKey(parameters, "Packages");
-            string branch = GetByKey(parameters, "Branch");
-            bool needBackupConfiguration = String.IsNullOrEmpty( GetByKey(parameters, "Backup") ) ? false : true;
+            string command = GetByKey(parameters, "Command");
 
             if (String.IsNullOrEmpty(ID))
             {
                 Logger.Log("BpmConfigurationUpdate: Failed execution. Parameter 'ID' must be defined");
                 return;
             }
+            if (String.IsNullOrEmpty(command))
+            {
+                Logger.Log("BpmConfigurationUpdate: Failed execution. Parameter 'Command' must be defined");
+                return;
+            }
+
+            switch(command) {
+                case "BuildFromSVN":
+                    ExecuteBuild(parameters);
+                break;
+                case "RestoreLastBackup":
+                    ExecuteRestoreLastBackup(parameters);
+                break;
+                case "BuildStaticFiles":
+                    BuildStaticFilesOnly(parameters);
+                    break;
+                case "GetPackagesFromSVN":
+                    //ExecuteRestoreLastBackup(parameters);
+                    break;
+            }
+        }
+
+        private void ExecuteBuild(Dictionary<string, string> parameters)
+        {
+            InputParameters = parameters;
+            string packages = GetByKey(parameters, "Packages");
+            string branch = GetByKey(parameters, "Branch");
+            bool needBackupConfiguration = String.IsNullOrEmpty( GetByKey(parameters, "Backup") ) ? false : true;
+            bool needDownloadPackages = String.IsNullOrEmpty(GetByKey(parameters, "DownloadPackages")) ? false : true;
+
             if (String.IsNullOrEmpty(packages))
             {
                 Logger.Log("BpmConfigurationUpdate: Failed execution. Parameter 'Packages' must be defined");
@@ -135,6 +162,44 @@ namespace Ns.BpmOnline.Worker
                 Logger.Log("BpmConfigurationUpdate: Failed execution. Parameter 'Branch' must be defined");
                 return;
             }
+
+            Updater = CreateUpdater();
+
+            Updater.SetPackages(packages);
+            Updater.SetBranch(branch);
+
+            Updater.SetNeedDownloadPackages(needDownloadPackages);
+
+            Updater.RunUpdateFromSvn(needBackupConfiguration);
+
+        }
+
+        private void ExecuteRestoreLastBackup(Dictionary<string, string> parameters)
+        {
+
+            InputParameters = parameters;
+            Updater = CreateUpdater();
+            Updater.RestorePackagesFromLastBackup();
+
+        }
+
+        private void BuildStaticFilesOnly(Dictionary<string, string> parameters)
+        {
+
+            InputParameters = parameters;
+            Updater = CreateUpdater();
+            Updater.BuildStaticFilesOnly();
+
+        }
+
+        private BpmConfigurationUpdater CreateUpdater()
+        {
+            DownloadPackagesFromServerSettings downloadPackagesFromServer;
+            DownloadPackagesFromSvnSettings downloadFromSvnSettings;
+            UploadPackagesToServerSettings uploadToServerSettings;
+            BuildConfigurationSettings buildConfigurationSettings;
+
+            (downloadPackagesFromServer, downloadFromSvnSettings, uploadToServerSettings, buildConfigurationSettings) = CreateSettings();
 
             BatchSendTimer = new Timer() { Interval = BatchSendTimeout };
             BatchSendTimer.Elapsed += OnBatchSendTimerEvent;
@@ -149,17 +214,14 @@ namespace Ns.BpmOnline.Worker
             Directory.CreateDirectory(TempUploadDirectory);
             Directory.CreateDirectory(LogsPath);
 
-            Updater = new BpmConfigurationUpdater(BpmServerPath, _downloadPackagesFromServer, _downloadFromSvnSettings, _uploadToServerSettings, _buildConfigurationSettings);
-            Updater.ProcessOutput += LogOutput;
-            Updater.SetUpdateStatus += LogUpdateStatus;
+            var updater = new BpmConfigurationUpdater(BpmServerPath, downloadPackagesFromServer, downloadFromSvnSettings, uploadToServerSettings, buildConfigurationSettings);
+            updater.ProcessOutput += LogOutput;
+            updater.SetUpdateStatus += LogUpdateStatus;
 
-            Updater.ClearDirectory(DownloadPackagesPath);
-            Updater.ClearDirectory(TempUploadDirectory);
+            updater.ClearDirectory(DownloadPackagesPath);
+            updater.ClearDirectory(TempUploadDirectory);
 
-            Updater.SetPackages(packages);
-            Updater.SetBranch(branch);
-
-            Updater.RunUpdateFromSvn(needBackupConfiguration);
+            return updater;
         }
 
         private void OnBatchSendTimerEvent(Object source, ElapsedEventArgs e)
@@ -193,6 +255,7 @@ namespace Ns.BpmOnline.Worker
         private void LogOutput(string message)
         {
             _outputList.Add(message);
+            Logger.Log(message);
         }
 
         private void LogUpdateStatus(string action, bool success, string comment)
@@ -204,7 +267,7 @@ namespace Ns.BpmOnline.Worker
 
             var status = new BpmConfigurationUpdateStatus()
             {
-                Timestamp = DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss"),
+                Timestamp = DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss.fff"),
                 Name = action,
                 Success = success,
                 Comment = comment
