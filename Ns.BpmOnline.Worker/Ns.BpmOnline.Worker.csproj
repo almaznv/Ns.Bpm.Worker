@@ -57,6 +57,12 @@
     <Reference Include="RabbitMQ.Client, Version=5.0.0.0, Culture=neutral, PublicKeyToken=89e7d7c5feba84ce, processorArchitecture=MSIL">
       <HintPath>..\packages\RabbitMQ.Client.5.1.0\lib\net451\RabbitMQ.Client.dll</HintPath>
     </Reference>
+    <Reference Include="SharpSvn, Version=1.9007.3987.251, Culture=neutral, PublicKeyToken=d729672594885a28, processorArchitecture=x86">
+      <HintPath>..\packages\SharpSvn.1.9-x86.1.9007.3987.251\lib\net40\SharpSvn.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpSvn.UI, Version=1.9007.3987.251, Culture=neutral, PublicKeyToken=33789aa53ca44aa9, processorArchitecture=MSIL">
+      <HintPath>..\packages\SharpSvn.1.9-x86.1.9007.3987.251\lib\net40\SharpSvn.UI.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Configuration.Install" />
@@ -73,18 +79,31 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ActionScript\BuildFromSvnScript.cs" />
+    <Compile Include="ActionScript\BuildStaticFilesScript.cs" />
+    <Compile Include="ActionScript\RabbitUploadBpmPackagesScriptStep.cs" />
+    <Compile Include="ActionScript\RabbitUploadFilesScriptStep.cs" />
+    <Compile Include="ActionScript\WCBuildConfigurationScriptStep.cs" />
+    <Compile Include="ActionScript\WCDownloadFromSvnScriptStep.cs" />
+    <Compile Include="ActionScript\RunCmdScriptStep.cs" />
+    <Compile Include="ActionScript\WCDownloadFromServerScriptStep.cs" />
+    <Compile Include="ActionScript\WCUploadToServerScriptStep.cs" />
     <Compile Include="BpmConfigurationUpdateExecutor.cs" />
     <Compile Include="BpmConfigurationUpdater.cs" />
-    <Compile Include="BpmConfigurationUpdateScript.cs" />
+    <Compile Include="ActionScript\ActionScript.cs" />
     <Compile Include="BpmConnector.cs" />
     <Compile Include="CommandConsumer.cs" />
-    <Compile Include="BpmProcessExecutor.cs" />
+    <Compile Include="Executors\BpmProcessExecutor.cs" />
     <Compile Include="BpmServersConfigSection.cs" />
-    <Compile Include="BpmServiceExecutor.cs" />
+    <Compile Include="Executors\BpmServiceExecutor.cs" />
     <Compile Include="Config.cs" />
-    <Compile Include="Executor.cs" />
-    <Compile Include="IExecutor.cs" />
+    <Compile Include="Executors\Executor.cs" />
+    <Compile Include="Executors\IExecutor.cs" />
     <Compile Include="Logger.cs" />
+    <Compile Include="Parameters\BpmPaths.cs" />
+    <Compile Include="Executors\BpmUpdateExecutor.cs" />
+    <Compile Include="Parameters\WorkingPaths.cs" />
+    <Compile Include="Parameters\WCCommands.cs" />
     <Compile Include="ProjectInstaller.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -95,6 +114,7 @@
     <Compile Include="RabbitConsumer.cs" />
     <Compile Include="RabbitPublisher.cs" />
     <Compile Include="RabbitSettings.cs" />
+    <Compile Include="ActionScript\ActionScriptStep.cs" />
     <Compile Include="WorkerService.cs">
       <SubType>Component</SubType>
     </Compile>

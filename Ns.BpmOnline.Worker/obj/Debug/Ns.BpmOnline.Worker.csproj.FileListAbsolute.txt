@@ -16,3 +16,10 @@ C:\Users\almaz\source\repos\Ns.BpmOnline.Worker\Ns.BpmOnline.Worker\obj\Debug\Ns
 C:\Users\almaz\source\repos\Ns.BpmOnline.Worker\Ns.BpmOnline.Worker\bin\Debug\Newtonsoft.Json.dll
 C:\Users\almaz\source\repos\Ns.BpmOnline.Worker\Ns.BpmOnline.Worker\bin\Debug\Newtonsoft.Json.pdb
 C:\Users\almaz\source\repos\Ns.BpmOnline.Worker\Ns.BpmOnline.Worker\bin\Debug\Newtonsoft.Json.xml
+C:\Users\almaz\source\repos\Ns.BpmOnline.Worker\Ns.BpmOnline.Worker\bin\Debug\SharpSvn.dll
+C:\Users\almaz\source\repos\Ns.BpmOnline.Worker\Ns.BpmOnline.Worker\bin\Debug\SharpSvn.pdb
+C:\Users\almaz\source\repos\Ns.BpmOnline.Worker\Ns.BpmOnline.Worker\bin\Debug\SharpSvn.xml
+C:\Users\almaz\source\repos\Ns.BpmOnline.Worker\Ns.BpmOnline.Worker\bin\Debug\SharpSvn.UI.dll
+C:\Users\almaz\source\repos\Ns.BpmOnline.Worker\Ns.BpmOnline.Worker\bin\Debug\SharpSvn.UI.pdb
+C:\Users\almaz\source\repos\Ns.BpmOnline.Worker\Ns.BpmOnline.Worker\bin\Debug\SharpSvn.UI.xml
+C:\Users\almaz\source\repos\Ns.BpmOnline.Worker\Ns.BpmOnline.Worker\bin\Debug\SharpPlink-Win32.svnExe

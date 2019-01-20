@@ -48,4 +48,12 @@ namespace Ns.BpmOnline.Worker
         public string AnswerQueueName => String.Format("{0}_{1}", QueueName, "ANSWER");
         public string AnswerRoutingKey => String.Format("{0}_{1}", QueueName, "ANSWER");
     }
+
+    public class UpdateFilesRabbitSettings : RabbitSettings, IRabbitSettings
+    {
+        public UpdateFilesRabbitSettings(string TargetServerName = "") : base(TargetServerName) { }
+        public string ExchangeName => targetServerName;
+        public string QueueName => String.Format("{0}_{1}", targetServerName, "UPDATE_FILES_ANSWER");
+        public string RoutingKey => String.Format("{0}_{1}", targetServerName, "UPDATE_FILES_ANSWER");
+    }
 }

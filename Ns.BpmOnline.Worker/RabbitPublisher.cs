@@ -13,8 +13,13 @@ namespace Ns.BpmOnline.Worker
 
         public static void Publish(IConnection Connection, string ExchangeName, string QueueName, string RoutingKey, string Message)
         {
-            IModel channel = GetRabbitChannel(Connection, ExchangeName, QueueName, RoutingKey);
             byte[] messageBodyBytes = Encoding.UTF8.GetBytes(Message);
+            Publish(Connection, ExchangeName, QueueName, RoutingKey, messageBodyBytes);
+        }
+
+        public static void Publish(IConnection Connection, string ExchangeName, string QueueName, string RoutingKey, byte[] messageBodyBytes)
+        {
+            IModel channel = GetRabbitChannel(Connection, ExchangeName, QueueName, RoutingKey);
             channel.BasicPublish(ExchangeName, RoutingKey, null, messageBodyBytes);
             channel.Close();
         }

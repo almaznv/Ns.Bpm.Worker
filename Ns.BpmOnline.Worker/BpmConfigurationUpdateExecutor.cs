@@ -8,6 +8,8 @@ using System.IO;
 using RabbitMQ.Client;
 using Newtonsoft.Json;
 using System.Configuration;
+using Ns.BpmOnline.Worker.Parameters;
+using Ns.BpmOnline.Worker.Executors;
 
 namespace Ns.BpmOnline.Worker
 {
@@ -105,6 +107,8 @@ namespace Ns.BpmOnline.Worker
             } catch (Exception e)
             {
                 parameters = new Dictionary<string, string>();
+                parameters.Add("Error", e.Message);
+                parameters.Add("StackTrace", e.StackTrace);
             }
 
             Execute(parameters);
@@ -285,18 +289,5 @@ namespace Ns.BpmOnline.Worker
 
     }
 
-    public class BpmConfigurationUpdateStatus
-    {
-        public string Timestamp { get; set; }
-        public string Name { get; set; }
-        public bool Success { get; set; }
-        public string Comment { get; set; }
-    }
-
-    public class BpmConfigurationUpdateResponse
-    {
-        public List<string> OutputList { get; set; }
-        public List<BpmConfigurationUpdateStatus> ActionList { get; set; }
-        public string Id { get; set; }
-    }
+    
 }

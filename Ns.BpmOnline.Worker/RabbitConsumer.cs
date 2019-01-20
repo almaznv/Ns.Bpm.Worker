@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Configuration;
+using Ns.BpmOnline.Worker.Executors;
 
 namespace Ns.BpmOnline.Worker
 {

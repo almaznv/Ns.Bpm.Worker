@@ -10,6 +10,7 @@ namespace Ns.BpmOnline.Worker
 {
     static class RabbitConnector
     {
+        private static IConnection _connection;
 
         private static readonly string _rabbitMqHost = ConfigurationManager.AppSettings["rabbitMqHost"];
         private static readonly string _rabbitMqLogin = ConfigurationManager.AppSettings["rabbitMqLogin"];
@@ -17,11 +18,17 @@ namespace Ns.BpmOnline.Worker
 
         public static IConnection GetConnection()
         {
+            if (_connection != null && _connection.IsOpen == true)
+            {
+                return _connection;
+            }
+
             ConnectionFactory factory = new ConnectionFactory
             {
                 Uri = new Uri(String.Format("amqp://{0}:{1}@{2}/", _rabbitMqLogin, _rabbitMqPassword, _rabbitMqHost))
             };
-            return factory.CreateConnection();
+            _connection = factory.CreateConnection();
+            return _connection;
         }
     }
 }
