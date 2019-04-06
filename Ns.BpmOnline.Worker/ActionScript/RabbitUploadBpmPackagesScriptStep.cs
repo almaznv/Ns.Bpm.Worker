@@ -72,11 +72,25 @@ namespace Ns.BpmOnline.Worker.ActionScript
                 string svnPackageDirectory = Path.Combine(_svnPackagesFolder, packageName);
                 if (!Directory.Exists(svnPackageDirectory)) continue;
 
-                SvnWorkingCopyVersion version;
-                workingCopyClient.GetVersion(svnPackageDirectory, out version);
+                using (SvnClient client = new SvnClient())
+                {
 
-                long localRev = version.End;
-                _packagesInfo.Add(packageName + "_REVNUM", localRev.ToString());
+                    SvnInfoEventArgs info;
+
+                    try
+                    {
+
+                        client.GetInfo(@svnPackageDirectory, out info);
+
+                        _packagesInfo.Add(packageName + "_REVNUM", info.LastChangeRevision.ToString());
+                        _packagesInfo.Add(packageName + "_LASTAUTHOR", info.LastChangeAuthor);
+                        _packagesInfo.Add(packageName + "_LASTDATE", info.LastChangeTime.ToString("dd.MM.yyyy HH:mm:ss"));
+
+
+                    }
+                    catch (Exception){ }
+                }
+
                 _packagesInfo.Add(packageName + "_BRANCH", _branch);
             }
         }
@@ -93,13 +107,13 @@ namespace Ns.BpmOnline.Worker.ActionScript
                 FileInfo fileInfo = new FileInfo(@filePath);
 
                 byte[] file = File.ReadAllBytes(fileInfo.FullName);
-                string fileSize = (fileInfo.Length / 1024).ToString() + " Kb";
+                string fileSize = (fileInfo.Length / 1024).ToString();
                 _packagesInfo.Add(packageName + "_SIZE", fileSize);
 
                 string logInfo;
                 if (_needDownloadPackages == true)
                 {
-                    logInfo = String.Format("Send file: {0} ({1})", fileInfo.Name, fileSize);
+                    logInfo = String.Format("Send file: {0} ({1}) {2}", fileInfo.Name, fileSize, file.Length.ToString());
                 } else
                 {
                     logInfo = String.Format("Send file info: {0} ({1})", fileInfo.Name, fileSize);
@@ -137,9 +151,17 @@ namespace Ns.BpmOnline.Worker.ActionScript
             {
                 props.Headers.Add("revNum", _packagesInfo[packageName + "_REVNUM"]);
             }
+            if (_packagesInfo.ContainsKey(packageName + "_LASTDATE"))
+            {
+                props.Headers.Add("lastChangeDate", _packagesInfo[packageName + "_LASTDATE"]);
+            }
+            if (_packagesInfo.ContainsKey(packageName + "_LASTAUTHOR"))
+            {
+                props.Headers.Add("lastChangeAuthor", _packagesInfo[packageName + "_LASTAUTHOR"]);
+            }
             if (_packagesInfo.ContainsKey(packageName + "_SIZE"))
             {
-                props.Headers.Add("size", _packagesInfo[packageName + "_SIZE"]);
+                props.Headers.Add("fileSize", _packagesInfo[packageName + "_SIZE"]);
             }
             if (_packagesInfo.ContainsKey(packageName + "_BRANCH"))
             {

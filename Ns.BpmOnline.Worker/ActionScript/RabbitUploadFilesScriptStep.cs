@@ -19,11 +19,13 @@ namespace Ns.BpmOnline.Worker.ActionScript
         private string _ID;
         private string _targetFolder;
         private string _fileType;
+        private string _packages;
 
         public RabbitUploadFilesScriptStep(ServerElement Server, IRabbitSettings rabbitSettings, 
             Dictionary<string, string> parameters, string fileType) : base(Server)
         {
             _ID = GetByKey(parameters, "ID");
+            _packages = GetByKey(parameters, "Packages");
             _rabbitSettings = rabbitSettings;
             _fileType = fileType;
         }
@@ -46,10 +48,13 @@ namespace Ns.BpmOnline.Worker.ActionScript
 
         private void SendFiles()
         {
-            DirectoryInfo d = new DirectoryInfo(@_targetFolder);
-            FileInfo[] Files = d.GetFiles("*.gz");
-            foreach (FileInfo fileInfo in Files)
+            foreach (string _packageName in _packages.Split(','))
             {
+                string packageName = _packageName.Trim();
+
+                string filePath = Path.Combine(_targetFolder, packageName + ".gz");
+                if (!File.Exists(filePath)) continue;
+                FileInfo fileInfo = new FileInfo(@filePath);
 
                 byte[] file = File.ReadAllBytes(fileInfo.FullName);
                 string logInfo = String.Format("Send file: {0} ({1} Kb)", fileInfo.Name, (fileInfo.Length / 1024).ToString());
@@ -57,16 +62,15 @@ namespace Ns.BpmOnline.Worker.ActionScript
                 StepOutput(logInfo);
                 Logger.Log(logInfo);
 
-                SendFile(fileInfo.Name, file);
+                SendFile(packageName, fileInfo.Name, file);
 
                 StepOutput("File sent");
-
             }
 
             StepExit(0, "File sent end");
         }
 
-        private void SendFile(string fileName, byte[] data)
+        private void SendFile(string packageName, string fileName, byte[] data)
         {
             IConnection connection = RabbitConnector.GetConnection();
 
@@ -79,6 +83,7 @@ namespace Ns.BpmOnline.Worker.ActionScript
             props.Headers = new Dictionary<string, object>();
             props.Headers.Add("ID", _ID);
             props.Headers.Add("fileName", fileName);
+            props.Headers.Add("packageName", packageName);
             props.Headers.Add("fileType", _fileType);
 
             model.BasicPublish(_rabbitSettings.ExchangeName, _rabbitSettings.RoutingKey, props, data);

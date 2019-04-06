@@ -67,6 +67,9 @@ namespace Ns.BpmOnline.Worker.Executors
                 case "BuildFromSVN":
                     BuildFromSvn(parameters);
                     break;
+                case "BuildFromPackages":
+                    BuildFromPackages(parameters);
+                    break;
                 case "BuildStaticFiles":
                     BuildStaticFiles(parameters);
                     break;
@@ -90,6 +93,26 @@ namespace Ns.BpmOnline.Worker.Executors
                 Logger.Log("Error in BuildFromSvnScript " + e.Message + e.StackTrace);
             }
            
+
+        }
+
+        private void BuildFromPackages(Dictionary<string, string> parameters)
+        {
+            try
+            {
+                _script = new BuildFromPackagesScript(_server, parameters);
+
+                _script.ScriptOutput += ScriptOutput;
+                _script.ScriptExit += ScriptExit;
+                _script.ScriptAction += LogStepAction;
+                _script.Run();
+            }
+            catch (Exception e)
+            {
+                _script = null;
+                Logger.Log("Error in BuildFromPackages " + e.Message + e.StackTrace);
+            }
+
 
         }
 

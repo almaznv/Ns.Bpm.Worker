@@ -79,10 +79,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ActionScript\BuildFromPackagesScript.cs" />
     <Compile Include="ActionScript\BuildFromSvnScript.cs" />
     <Compile Include="ActionScript\BuildStaticFilesScript.cs" />
     <Compile Include="ActionScript\RabbitUploadBpmPackagesScriptStep.cs" />
     <Compile Include="ActionScript\RabbitUploadFilesScriptStep.cs" />
+    <Compile Include="ActionScript\SavePackagesScriptStep.cs" />
     <Compile Include="ActionScript\WCBuildConfigurationScriptStep.cs" />
     <Compile Include="ActionScript\WCDownloadFromSvnScriptStep.cs" />
     <Compile Include="ActionScript\RunCmdScriptStep.cs" />

@@ -7,18 +7,25 @@ using Ns.BpmOnline.Worker.Parameters;
 
 namespace Ns.BpmOnline.Worker.ActionScript
 {
-    public class BuildFromSvnScript : ActionScript, IActionScript
-    {
 
-        public BuildFromSvnScript(ServerElement Server, Dictionary<string, string> parameters) : base(Server, parameters)
+
+     public class BuildFromPackagesScript : ActionScript, IActionScript
+     {
+
+        public BuildFromPackagesScript(ServerElement Server, Dictionary<string, string> parameters) : base(Server, parameters)
         {
             UpdateFilesRabbitSettings updateFilesRabbitSettings = new UpdateFilesRabbitSettings();
             WorkingPaths workingPaths = new WorkingPaths(Server.Name);
-            WCDownloadFromSvnScriptStep downloadFromSvnStep = new WCDownloadFromSvnScriptStep(Server, parameters);
+
+            SavePackagesScriptStep savePackagesStep = new SavePackagesScriptStep(Server, parameters);
+
             WCUploadToServerScriptStep uploadToServerScriptStep  = new WCUploadToServerScriptStep(Server);
             WCBuildConfigurationScriptStep buildConfigurationScriptStep = new WCBuildConfigurationScriptStep(Server);
 
             List<IActionScriptStep> steps = new List<IActionScriptStep>();
+
+            ClearDirectory(workingPaths.DownloadPackagesPath);
+            steps.Add(savePackagesStep);
 
             bool needBackup = String.IsNullOrEmpty(GetByKey(parameters, "Backup")) ? false : true;
             if (needBackup)
@@ -31,13 +38,13 @@ namespace Ns.BpmOnline.Worker.ActionScript
                 steps.Add(rabbitUploadFilesScriptStep);
             }
 
-            steps.Add(downloadFromSvnStep);
+            
 
-            var settings = new UpdateFilesRabbitSettings();
+            /*var settings = new UpdateFilesRabbitSettings();
             RabbitUploadBpmPackagesScriptStep uploadBpmPackagesScriptStep = new RabbitUploadBpmPackagesScriptStep(Server, settings, parameters, "Package");
             uploadBpmPackagesScriptStep.SetTargetFolder(workingPaths.DownloadPackagesPath);
             uploadBpmPackagesScriptStep.SetSvnPackagesFolder(workingPaths.DownloadSvnPackagesPath);
-            steps.Add(uploadBpmPackagesScriptStep);
+            steps.Add(uploadBpmPackagesScriptStep);*/
 
 
             steps.Add(uploadToServerScriptStep);
@@ -46,7 +53,7 @@ namespace Ns.BpmOnline.Worker.ActionScript
             SetScriptSteps(steps);
 
             ClearDirectory(workingPaths.DownloadServerPackagesPath);
-            ClearDirectory(workingPaths.DownloadPackagesPath);
+            //ClearDirectory(workingPaths.DownloadPackagesPath);
             ClearDirectory(workingPaths.TempUploadDirectory);
         }
 
