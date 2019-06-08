@@ -12,39 +12,51 @@ namespace Ns.BpmOnline.Worker.ActionScript
      public class BuildFromPackagesScript : ActionScript, IActionScript
      {
 
-        public BuildFromPackagesScript(ServerElement Server, Dictionary<string, string> parameters) : base(Server, parameters)
-        {
-            UpdateFilesRabbitSettings updateFilesRabbitSettings = new UpdateFilesRabbitSettings();
-            WorkingPaths workingPaths = new WorkingPaths(Server.Name);
+         public BuildFromPackagesScript(ServerElement Server, Dictionary<string, string> parameters) : base(Server,
+             parameters)
+         {
+             UpdateFilesRabbitSettings updateFilesRabbitSettings = new UpdateFilesRabbitSettings();
+             WorkingPaths workingPaths = new WorkingPaths(Server.Name);
 
-            SavePackagesScriptStep savePackagesStep = new SavePackagesScriptStep(Server, parameters);
+             SavePackagesScriptStep savePackagesStep = new SavePackagesScriptStep(Server, parameters);
 
-            WCUploadToServerScriptStep uploadToServerScriptStep  = new WCUploadToServerScriptStep(Server);
-            WCBuildConfigurationScriptStep buildConfigurationScriptStep = new WCBuildConfigurationScriptStep(Server);
+             WCUploadToServerScriptStep uploadToServerScriptStep = new WCUploadToServerScriptStep(Server);
+             WCBuildConfigurationScriptStep buildConfigurationScriptStep = new WCBuildConfigurationScriptStep(Server);
 
-            List<IActionScriptStep> steps = new List<IActionScriptStep>();
+             List<IActionScriptStep> steps = new List<IActionScriptStep>();
 
-            ClearDirectory(workingPaths.DownloadPackagesPath);
-            steps.Add(savePackagesStep);
+             ClearDirectory(workingPaths.DownloadPackagesPath);
+             steps.Add(savePackagesStep);
 
-            bool needBackup = String.IsNullOrEmpty(GetByKey(parameters, "Backup")) ? false : true;
-            if (needBackup)
-            {
-                WCDownloadFromServerScriptStep downloadFromServerScriptStep = new WCDownloadFromServerScriptStep(Server, parameters);
-                steps.Add(downloadFromServerScriptStep);
+             bool needBackup = String.IsNullOrEmpty(GetByKey(parameters, "Backup")) ? false : true;
+             if (needBackup)
+             {
+                 WCDownloadFromServerScriptStep downloadFromServerScriptStep =
+                     new WCDownloadFromServerScriptStep(Server, parameters);
+                 steps.Add(downloadFromServerScriptStep);
 
-                RabbitUploadFilesScriptStep rabbitUploadFilesScriptStep = new RabbitUploadFilesScriptStep(Server, updateFilesRabbitSettings, parameters, "Backup");
-                rabbitUploadFilesScriptStep.SetTargetFolder(workingPaths.DownloadServerPackagesPath);
-                steps.Add(rabbitUploadFilesScriptStep);
-            }
+                 RabbitUploadFilesScriptStep rabbitUploadFilesScriptStep =
+                     new RabbitUploadFilesScriptStep(Server, updateFilesRabbitSettings, parameters, "Backup");
+                 rabbitUploadFilesScriptStep.SetTargetFolder(workingPaths.DownloadServerPackagesPath);
+                 steps.Add(rabbitUploadFilesScriptStep);
+             }
 
-            
+             bool isClearRedis = String.IsNullOrEmpty(GetByKey(parameters, "IsClearRedis")) ? false : true;
+             if (isClearRedis)
+             {
+                 var redisHost = GetByKey(parameters, "RedisHost");
+                 var redisDB = GetByKey(parameters, "RedisDB");
+                 ClearRedisScriptStep clearRedisScriptStep = new ClearRedisScriptStep(Server, redisHost, redisDB);
+                 steps.Add(clearRedisScriptStep);
 
-            /*var settings = new UpdateFilesRabbitSettings();
-            RabbitUploadBpmPackagesScriptStep uploadBpmPackagesScriptStep = new RabbitUploadBpmPackagesScriptStep(Server, settings, parameters, "Package");
-            uploadBpmPackagesScriptStep.SetTargetFolder(workingPaths.DownloadPackagesPath);
-            uploadBpmPackagesScriptStep.SetSvnPackagesFolder(workingPaths.DownloadSvnPackagesPath);
-            steps.Add(uploadBpmPackagesScriptStep);*/
+             }
+
+
+             /*var settings = new UpdateFilesRabbitSettings();
+             RabbitUploadBpmPackagesScriptStep uploadBpmPackagesScriptStep = new RabbitUploadBpmPackagesScriptStep(Server, settings, parameters, "Package");
+             uploadBpmPackagesScriptStep.SetTargetFolder(workingPaths.DownloadPackagesPath);
+             uploadBpmPackagesScriptStep.SetSvnPackagesFolder(workingPaths.DownloadSvnPackagesPath);
+             steps.Add(uploadBpmPackagesScriptStep);*/
 
 
             steps.Add(uploadToServerScriptStep);

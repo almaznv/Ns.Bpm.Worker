@@ -35,8 +35,10 @@ namespace Ns.BpmOnline.Worker.ActionScript
             foreach (var packageName in packages.Split(','))
             {
                 var packageData = GetByKey(_parameters, "PackagesData_" + packageName);
+                var packageExt = GetByKey(_parameters, "PackagesDataExt_" + packageName);
+                packageExt = (packageExt == String.Empty) ? ".gz" : packageExt;
                 byte[] data = Convert.FromBase64String(packageData);
-                string fileName = _workingDirectory + "\\" + packageName + ".gz";
+                string fileName = _workingDirectory + "\\" + packageName + packageExt;
                 File.WriteAllBytes(fileName, data);
             }
             StepOutput("Files saved");

@@ -115,10 +115,11 @@ namespace Ns.BpmOnline.Worker.Parameters
                "-workspaceName={2} " +
                "-destinationPath=\"{3}\" " +
                "-webApplicationPath=\"{4}\" " +
-               "-force={5} " +
-               "-logPath=\"{6}\" " +
-               "-autoExit={7}"
-               , WCpath, Operation, WorkspaceName, WebAppPath, AppPath, Force, LogPath, AutoExit);
+               "-confRuntimeParentDirectory=\"{5}\" " +
+               "-force={6} " +
+               "-logPath=\"{7}\" " +
+               "-autoExit={8}"
+               , WCpath, Operation, WorkspaceName, WebAppPath, AppPath, WebAppPath, Force, LogPath, AutoExit);
         }
     }
 

@@ -39,6 +39,16 @@ namespace Ns.BpmOnline.Worker.ActionScript
             uploadBpmPackagesScriptStep.SetSvnPackagesFolder(workingPaths.DownloadSvnPackagesPath);
             steps.Add(uploadBpmPackagesScriptStep);
 
+            bool isClearRedis = String.IsNullOrEmpty(GetByKey(parameters, "IsClearRedis")) ? false : true;
+            if (isClearRedis)
+            {
+                var redisHost = GetByKey(parameters, "RedisHost");
+                var redisDB = GetByKey(parameters, "RedisDB");
+                ClearRedisScriptStep clearRedisScriptStep = new ClearRedisScriptStep(Server, redisHost, redisDB);
+                steps.Add(clearRedisScriptStep);
+
+            }
+
 
             steps.Add(uploadToServerScriptStep);
             steps.Add(buildConfigurationScriptStep);
