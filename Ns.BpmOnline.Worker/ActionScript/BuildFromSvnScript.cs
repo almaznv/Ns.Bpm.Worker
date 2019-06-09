@@ -37,7 +37,10 @@ namespace Ns.BpmOnline.Worker.ActionScript
             RabbitUploadBpmPackagesScriptStep uploadBpmPackagesScriptStep = new RabbitUploadBpmPackagesScriptStep(Server, settings, parameters, "Package");
             uploadBpmPackagesScriptStep.SetTargetFolder(workingPaths.DownloadPackagesPath);
             uploadBpmPackagesScriptStep.SetSvnPackagesFolder(workingPaths.DownloadSvnPackagesPath);
+
             steps.Add(uploadBpmPackagesScriptStep);
+            steps.Add(uploadToServerScriptStep);
+            steps.Add(buildConfigurationScriptStep);
 
             bool isClearRedis = String.IsNullOrEmpty(GetByKey(parameters, "IsClearRedis")) ? false : true;
             if (isClearRedis)
@@ -48,10 +51,6 @@ namespace Ns.BpmOnline.Worker.ActionScript
                 steps.Add(clearRedisScriptStep);
 
             }
-
-
-            steps.Add(uploadToServerScriptStep);
-            steps.Add(buildConfigurationScriptStep);
 
             SetScriptSteps(steps);
 

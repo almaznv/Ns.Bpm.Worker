@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
 using Ns.BpmOnline.Worker.Parameters;
 
 namespace Ns.BpmOnline.Worker.ActionScript
@@ -10,7 +11,7 @@ namespace Ns.BpmOnline.Worker.ActionScript
 
     public class ClearRedisScriptStep : RunCmdScriptStep, IActionScriptStep
     {
-        private static readonly string redisPath = System.Configuration.ConfigurationManager.AppSettings["redisPath"];
+        private static readonly string redisPath = @System.Configuration.ConfigurationManager.AppSettings["redisPath"];
 
         //ClearRedis
         public ClearRedisScriptStep(ServerElement Server, string redisHost, string redisdb) : base(Server)
@@ -18,11 +19,12 @@ namespace Ns.BpmOnline.Worker.ActionScript
 
             var redisCliSettings = new RedisCliSettings()
             {
-                RedisPath = redisPath,
+                RedisPath = @redisPath,
                 RedisHost = (String.IsNullOrEmpty(redisHost)) ? "localhost" : redisHost,
-                RedisDB = (String.IsNullOrEmpty(redisdb) || redisdb == "0") ? "flushall" : "flushdb "+ redisdb
+                RedisDB = (String.IsNullOrEmpty(redisdb) || redisdb == "0") ? "flushall" : "-n "+ redisdb + " FLUSHDB"
             };
-
+            
+            SetWorkingDirectory(Path.GetDirectoryName(redisPath));
             SetCmdCommand(redisCliSettings.GetCmdParametersStr());
         }
 
