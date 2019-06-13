@@ -41,26 +41,24 @@ namespace Ns.BpmOnline.Worker.ActionScript
                  steps.Add(rabbitUploadFilesScriptStep);
              }
 
-             bool isClearRedis = String.IsNullOrEmpty(GetByKey(parameters, "IsClearRedis")) ? false : true;
-             if (isClearRedis)
-             {
-                 var redisHost = GetByKey(parameters, "RedisHost");
-                 var redisDB = GetByKey(parameters, "RedisDB");
-                 ClearRedisScriptStep clearRedisScriptStep = new ClearRedisScriptStep(Server, redisHost, redisDB);
-                 steps.Add(clearRedisScriptStep);
-
-             }
-
-
              /*var settings = new UpdateFilesRabbitSettings();
              RabbitUploadBpmPackagesScriptStep uploadBpmPackagesScriptStep = new RabbitUploadBpmPackagesScriptStep(Server, settings, parameters, "Package");
              uploadBpmPackagesScriptStep.SetTargetFolder(workingPaths.DownloadPackagesPath);
              uploadBpmPackagesScriptStep.SetSvnPackagesFolder(workingPaths.DownloadSvnPackagesPath);
              steps.Add(uploadBpmPackagesScriptStep);*/
 
-
             steps.Add(uploadToServerScriptStep);
             steps.Add(buildConfigurationScriptStep);
+
+            bool isClearRedis = String.IsNullOrEmpty(GetByKey(parameters, "IsClearRedis")) ? false : true;
+            if (isClearRedis)
+            {
+                var redisHost = GetByKey(parameters, "RedisHost");
+                var redisDB = GetByKey(parameters, "RedisDB");
+                ClearRedisScriptStep clearRedisScriptStep = new ClearRedisScriptStep(Server, redisHost, redisDB);
+                steps.Add(clearRedisScriptStep);
+
+            }
 
             SetScriptSteps(steps);
 
