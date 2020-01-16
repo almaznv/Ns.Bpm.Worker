@@ -9,7 +9,7 @@ using Ns.BpmOnline.Worker.Parameters;
 
 namespace Ns.BpmOnline.Worker
 {
-
+    /*
     public class BpmConfigurationUpdater
     {
         private string _webAppPath;
@@ -244,6 +244,6 @@ namespace Ns.BpmOnline.Worker
         }
 
     }
-
+    */
    
 }

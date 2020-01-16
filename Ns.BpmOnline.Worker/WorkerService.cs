@@ -39,8 +39,9 @@ namespace Ns.BpmOnline.Worker
             IConnection connection = RabbitConnector.GetConnection();
             _consumers = new List<IRabbitConsumer>()
             {
-                new CommandConsumer(connection, new BpmProcessExecutor(targetBpmServer), new ProcessExecutorRabbitSettings()),
-                new CommandConsumer(connection, new BpmServiceExecutor(targetBpmServer), new ServiceExecutorRabbitSettings()),
+                //new CommandConsumer(connection, new BpmProcessExecutor(targetBpmServer), new ProcessExecutorRabbitSettings()),
+                //new CommandConsumer(connection, new BpmServiceExecutor(targetBpmServer), new ServiceExecutorRabbitSettings()),
+                new CommandConsumer(connection, new UpdateFilesExecutor(targetBpmServer), new UpdateFilesRabbitSettings()),
                 new CommandConsumer(connection, new BpmUpdateExecutor(targetBpmServer), new UpdateExecutorRabbitSettings())
             };
         }

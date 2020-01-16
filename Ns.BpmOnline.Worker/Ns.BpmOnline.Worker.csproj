@@ -83,8 +83,12 @@
     <Compile Include="ActionScript\BuildFromSvnScript.cs" />
     <Compile Include="ActionScript\BuildStaticFilesScript.cs" />
     <Compile Include="ActionScript\ClearRedisScriptStep.cs" />
+    <Compile Include="ActionScript\GetFilesScript.cs" />
+    <Compile Include="ActionScript\GetFilesScriptStep.cs" />
     <Compile Include="ActionScript\RabbitUploadBpmPackagesScriptStep.cs" />
     <Compile Include="ActionScript\RabbitUploadFilesScriptStep.cs" />
+    <Compile Include="ActionScript\RunExecutableScript.cs" />
+    <Compile Include="ActionScript\RunExecutableScriptStep.cs" />
     <Compile Include="ActionScript\SavePackagesScriptStep.cs" />
     <Compile Include="ActionScript\WCBuildConfigurationScriptStep.cs" />
     <Compile Include="ActionScript\WCDownloadFromSvnScriptStep.cs" />
@@ -102,6 +106,7 @@
     <Compile Include="Config.cs" />
     <Compile Include="Executors\Executor.cs" />
     <Compile Include="Executors\IExecutor.cs" />
+    <Compile Include="Executors\UpdateFilesExecutor.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="Parameters\BpmPaths.cs" />
     <Compile Include="Executors\BpmUpdateExecutor.cs" />

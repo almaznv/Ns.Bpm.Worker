@@ -48,14 +48,27 @@ namespace Ns.BpmOnline.Worker
 
         public virtual void onMessage(object model, BasicDeliverEventArgs ea)
         {
-            executor.Execute(ea.Body);
+            Dictionary<string, object> dict = new Dictionary<string, object>();
+            if (ea.BasicProperties.Headers != null)
+            {
+                foreach (string headerKey in ea.BasicProperties.Headers.Keys)
+                {
+                    byte[] value = ea.BasicProperties.Headers[headerKey] as byte[];
+                    dict.Add(headerKey, Encoding.UTF8.GetString(value));
+
+                }
+            }
+
+            executor.Execute(ea.Body, dict);
         }
 
         protected virtual IModel GetRabbitChannel(string exchangeName, string queueName, string routingKey)
         {
             IModel model = connection.CreateModel();
             model.ExchangeDeclare(exchangeName, ExchangeType.Direct);
-            model.QueueDeclare(queueName, false, false, false, null);
+            Dictionary<string, object> args = new Dictionary<string, object>();
+            args.Add("x-expires", 1800000);
+            model.QueueDeclare(queueName, false, false, true, args);
             model.QueueBind(queueName, exchangeName, routingKey, null);
             return model;
         }

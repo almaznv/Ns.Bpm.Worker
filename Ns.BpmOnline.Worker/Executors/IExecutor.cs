@@ -8,6 +8,6 @@ namespace Ns.BpmOnline.Worker.Executors
 {
     public interface IExecutor
     {
-        void Execute(byte[] data);
+        void Execute(byte[] data, Dictionary<string, object> headers);
     }
 }

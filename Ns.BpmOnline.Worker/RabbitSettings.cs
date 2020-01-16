@@ -53,7 +53,9 @@ namespace Ns.BpmOnline.Worker
     {
         public UpdateFilesRabbitSettings(string TargetServerName = "") : base(TargetServerName) { }
         public string ExchangeName => targetServerName;
-        public string QueueName => String.Format("{0}_{1}", targetServerName, "UPDATE_FILES_ANSWER");
-        public string RoutingKey => String.Format("{0}_{1}", targetServerName, "UPDATE_FILES_ANSWER");
+        public string QueueName => String.Format("{0}_{1}", targetServerName, "UPDATE_FILES");
+        public string RoutingKey => String.Format("{0}_{1}", targetServerName, "UPDATE_FILES");
+        public string AnswerQueueName => String.Format("{0}_{1}", QueueName, "ANSWER");
+        public string AnswerRoutingKey => String.Format("{0}_{1}", RoutingKey, "ANSWER");
     }
 }

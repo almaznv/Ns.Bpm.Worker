@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -7,6 +8,7 @@ using System.Timers;
 using RabbitMQ.Client;
 using Ns.BpmOnline.Worker.ActionScript;
 using Newtonsoft.Json;
+using Ns.BpmOnline.Worker.Parameters;
 
 namespace Ns.BpmOnline.Worker.Executors
 {
@@ -31,21 +33,19 @@ namespace Ns.BpmOnline.Worker.Executors
             _rabbitSettings = new UpdateExecutorRabbitSettings();
         }
 
-        public void Execute(byte[] data)
+        public void Execute(byte[] data, Dictionary<string, object> headers)
         {
-            Dictionary<string, string> parameters;
             try
             {
-                parameters = DecodeParameters(data);
+                Dictionary<string, string> parameters = DecodeParameters(data);
+                Execute(parameters);
             }
             catch (Exception e)
             {
-                parameters = new Dictionary<string, string>();
-                parameters.Add("Error", e.Message);
-                parameters.Add("StackTrace", e.StackTrace);
+                Logger.Log("Error in RunExecutable " + e.Message + e.StackTrace);
             }
 
-            Execute(parameters);
+            
         }
 
         private void Execute(Dictionary<string, string> parameters)
@@ -73,9 +73,53 @@ namespace Ns.BpmOnline.Worker.Executors
                 case "BuildStaticFiles":
                     BuildStaticFiles(parameters);
                     break;
+                case "RunExecutable":
+                    RunExecutable(parameters);
+                    break;
+                case "GetFiles":
+                    GetFiles(parameters);
+                    break;
+                default:
+                    StopAndClear();
+                    break;
             }
         }
 
+        private void GetFiles(Dictionary<string, string> parameters)
+        {
+            try
+            {
+                _script = new GetFilesScript(_server, parameters);
+
+                _script.ScriptOutput += ScriptOutput;
+                _script.ScriptExit += ScriptExit;
+                _script.ScriptAction += LogStepAction;
+                _script.Run();
+            }
+            catch (Exception e)
+            {
+                _script = null;
+                Logger.Log("Error in GetFiles " + e.Message + e.StackTrace);
+            }
+        }
+
+        private void RunExecutable(Dictionary<string, string> parameters)
+        {
+            try
+            {
+                _script = new RunExecutableScript(_server, parameters);
+
+                _script.ScriptOutput += ScriptOutput;
+                _script.ScriptExit += ScriptExit;
+                _script.ScriptAction += LogStepAction;
+                _script.Run();
+            }
+            catch (Exception e)
+            {
+                _script = null;
+                Logger.Log("Error in RunExecutable " + e.Message + e.StackTrace);
+            }
+        }
 
         private void BuildFromSvn(Dictionary<string, string> parameters)
         {
@@ -144,7 +188,17 @@ namespace Ns.BpmOnline.Worker.Executors
 
         private void ScriptExit(int exitCode, string message)
         {
-            LogStepAction("FINISH", ((exitCode < 0) ? false : true), message);
+            bool IsScriptSucceed = (exitCode < 0) ? false : true;
+            LogStepAction("FINISH", IsScriptSucceed, message);
+
+            
+            if (IsScriptSucceed)
+            {
+                BpmPaths bpmPaths = new BpmPaths(_server.Path);
+                string path = Path.Combine(bpmPaths.BpmWebAppPath, "web.config");
+                File.SetLastWriteTimeUtc(path, DateTime.UtcNow);
+
+            }
         }
 
         private bool ValidateParameters(Dictionary<string, string> parameters)
@@ -173,6 +227,7 @@ namespace Ns.BpmOnline.Worker.Executors
                 comment += " finished with errors";
             }
 
+            string statusStr = (success) ? "Succeed" : "Unsucceed";
             var status = new BpmConfigurationUpdateStatus()
             {
                 Timestamp = DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss.fff"),
@@ -180,7 +235,7 @@ namespace Ns.BpmOnline.Worker.Executors
                 Success = success,
                 Comment = comment
             };
-            Logger.Log(String.Format("[{0} {1}]: {2}", status.Timestamp, status.Name, status.Comment));
+            Logger.Log(String.Format("[{0} {1}]: {2}, {3}", status.Timestamp, status.Name, statusStr, status.Comment));
             
             _actionList.Add(status);
         }

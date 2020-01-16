@@ -2,3 +2,5 @@
 \.vs/
 
 Ns\.BpmOnline\.Worker/bin/Debug/MKP2_LOCAL/
+
+Ns\.BpmOnline\.Worker/obj/Debug/

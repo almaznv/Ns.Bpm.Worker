@@ -14,7 +14,7 @@ namespace Ns.BpmOnline.Worker.Executors
 
         public BpmServiceExecutor(ServerElement server) : base(server) {}
 
-        public void Execute(byte[] data)
+        public void Execute(byte[] data, Dictionary<string, object> headers)
         {
             Dictionary<string, string> serviceParameters = DecodeParameters(data);
             Execute(serviceParameters);

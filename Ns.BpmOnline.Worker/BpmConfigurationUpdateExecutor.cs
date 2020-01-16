@@ -13,6 +13,7 @@ using Ns.BpmOnline.Worker.Executors;
 
 namespace Ns.BpmOnline.Worker
 {
+    /*
     class BpmConfigurationUpdateExecutor : Executor, IExecutor
     {
 
@@ -288,6 +289,6 @@ namespace Ns.BpmOnline.Worker
         }
 
     }
-
+    */
     
 }
