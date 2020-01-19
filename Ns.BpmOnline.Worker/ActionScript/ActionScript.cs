@@ -30,17 +30,15 @@ namespace Ns.BpmOnline.Worker.ActionScript
 
         string _validateErrorText;
 
-        public ServerElement Server { get; private set; }
         public bool IsScriptSucceed { get; private set; }
 
         public virtual event ActionScriptExitHandler ScriptExit;
         public virtual event ActionScriptOutputHandler ScriptOutput;
         public virtual event ActionScriptActionHandler ScriptAction;
 
-        public ActionScript(ServerElement server, Dictionary<string, string> parameters)
+        public ActionScript(Dictionary<string, string> parameters)
         {
             _inputParameters = parameters;
-            Server = server;
             IsScriptSucceed = true;
         }
 

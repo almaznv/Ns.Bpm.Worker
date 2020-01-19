@@ -16,7 +16,7 @@ namespace Ns.BpmOnline.Worker.ActionScript
         private string _workingDirectory;
         private string _cmdCommand;
 
-        public RunCmdScriptStep(ServerElement Server) : base(Server) {
+        public RunCmdScriptStep() : base() {
 
         }
 

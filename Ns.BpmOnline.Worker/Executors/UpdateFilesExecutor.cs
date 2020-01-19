@@ -9,27 +9,30 @@ namespace Ns.BpmOnline.Worker.Executors
 
     public class UpdateFilesExecutor : Executor, IExecutor
     {
-        public UpdateFilesExecutor(ServerElement server) : base(server) { }
+        public UpdateFilesExecutor(string workerName) : base(workerName) { }
 
         public void Execute(byte[] data, Dictionary<string, object> headers)
         {
             List<string> outputList = new List<string>();
             List<BpmConfigurationUpdateStatus> actionList = new List<BpmConfigurationUpdateStatus>();
 
-            object FileName;
-            headers.TryGetValue("FileName", out FileName);
-
-            object FileSize;
-            headers.TryGetValue("FileSize", out FileSize);
-
-            object IsFinish;
-            headers.TryGetValue("IsFinish", out IsFinish);
-
-            object Destination;
-            headers.TryGetValue("Destination", out Destination);
-
             Guid StepId = (headers.ContainsKey("ID") ? Guid.Parse((string)headers["ID"]) : Guid.Empty);
-            Guid FileId = (headers.ContainsKey("FileId") ? Guid.Parse((string)headers["FileId"]) : Guid.Empty);
+            string FileName = (headers.ContainsKey("FileName") ? (string)headers["FileName"] : String.Empty);
+            string Destination = (headers.ContainsKey("Destination") ? (string)headers["Destination"] : String.Empty);
+
+            int FileSize = 0;
+            if (headers.ContainsKey("FileSize"))
+            {
+                Int32.TryParse((string)headers["FileSize"], out FileSize);
+            }
+
+            bool IsFinish = false;
+            if (headers.ContainsKey("IsFinish"))
+            {
+                Boolean.TryParse((string)headers["IsFinish"], out IsFinish);
+            }
+
+            //Guid FileId = (headers.ContainsKey("FileId") ? Guid.Parse((string)headers["FileId"]) : Guid.Empty);
 
 
             ScriptOutput(outputList, String.Format("Getting file {0} ({1}), to put in: {2}", FileName, FileSize.ToString(), Destination));
@@ -38,8 +41,7 @@ namespace Ns.BpmOnline.Worker.Executors
 
             ScriptOutput(outputList, "Saved");
 
-            bool isFinish = Boolean.Parse((string)IsFinish);
-            if (isFinish)
+            if (IsFinish)
             {
                 //SendAnswer(StepId, FileId);
                 ScriptOutput(outputList, String.Format("Ack step {0}. Is finish", StepId.ToString()));
@@ -109,7 +111,7 @@ namespace Ns.BpmOnline.Worker.Executors
 
         private void SendResponse(Guid StepId, List<string> outputList, List<BpmConfigurationUpdateStatus> actionList)
         {
-            var rSettings = new UpdateExecutorRabbitSettings(server.Name);
+            var rSettings = new UpdateExecutorRabbitSettings(WorkerName);
 
             Logger.Log(String.Format("[{0} {1}]", DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss"), "SendBuildResponse"));
 

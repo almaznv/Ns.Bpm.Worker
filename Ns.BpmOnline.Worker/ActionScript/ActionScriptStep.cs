@@ -21,14 +21,13 @@ namespace Ns.BpmOnline.Worker.ActionScript
 
     public abstract class ActionScriptStep : IActionScriptStep
     {
-        protected readonly ServerElement _server;
 
         abstract public event ActionScriptStepExitHandler StepExit;
         abstract public event ActionScriptStepOutputHandler StepOutput;
 
-        public ActionScriptStep(ServerElement Server)
+        public ActionScriptStep()
         {
-            _server = Server;
+
         }
 
         abstract public void DoStep();

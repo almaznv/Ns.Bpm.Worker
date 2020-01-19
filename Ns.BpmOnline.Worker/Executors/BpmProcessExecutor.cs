@@ -12,7 +12,7 @@ namespace Ns.BpmOnline.Worker.Executors
     public class BpmProcessExecutor : Executor, IExecutor
     {
 
-        public BpmProcessExecutor(ServerElement server) : base(server) { }
+        public BpmProcessExecutor(string workerName) : base(workerName) { }
 
         public void Execute(byte[] data, Dictionary<string, object> headers)
         {
@@ -24,9 +24,9 @@ namespace Ns.BpmOnline.Worker.Executors
         {
             string processName = GetByKey(processParameters, "ProcessName");
 
-            var bpmConnector = new BpmConnector(server.Host);
+            /*var bpmConnector = new BpmConnector(server.Host);
             bpmConnector.TryLogin(server.Login, server.Password);
-            bpmConnector.RunProcess(processName, processParameters);
+            bpmConnector.RunProcess(processName, processParameters);*/
         }
     }
 }

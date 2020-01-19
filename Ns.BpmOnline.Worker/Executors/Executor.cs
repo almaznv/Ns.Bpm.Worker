@@ -20,11 +20,11 @@ namespace Ns.BpmOnline.Worker.Executors
 
     public abstract class Executor
     {
-        protected ServerElement server;
+        protected string WorkerName { get; }
 
-        public Executor(ServerElement Server)
+        public Executor(string workerName)
         {
-            server = Server;
+            WorkerName = workerName;
         }
 
         public virtual Dictionary<string, string> DecodeParameters(byte[] data, string format = "JSON")

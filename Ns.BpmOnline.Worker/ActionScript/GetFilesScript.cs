@@ -8,12 +8,11 @@ namespace Ns.BpmOnline.Worker.ActionScript
 {
     public class GetFilesScript : ActionScript, IActionScript
     {
-        public GetFilesScript(ServerElement Server, Dictionary<string, string> parameters) : base(Server,
-            parameters)
+        public GetFilesScript(Dictionary<string, string> parameters) : base(parameters)
         {
             List<IActionScriptStep> steps = new List<IActionScriptStep>();
 
-            GetFilesScriptStep scriptStep = new GetFilesScriptStep(Server, parameters);
+            GetFilesScriptStep scriptStep = new GetFilesScriptStep(parameters);
             steps.Add(scriptStep);
 
             SetScriptSteps(steps);

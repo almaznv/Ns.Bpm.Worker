@@ -8,14 +8,13 @@ namespace Ns.BpmOnline.Worker.ActionScript
 {
     public class RunExecutableScript : ActionScript, IActionScript
     {
-        public RunExecutableScript(ServerElement Server, Dictionary<string, string> parameters) : base(Server,
-            parameters)
+        public RunExecutableScript( Dictionary<string, string> parameters) : base(parameters)
         {
             List<IActionScriptStep> steps = new List<IActionScriptStep>();
 
             var cmd = GetByKey(parameters, "Cmd");
 
-            RunExecutableScriptStep scriptStep = new RunExecutableScriptStep(Server, cmd);
+            RunExecutableScriptStep scriptStep = new RunExecutableScriptStep(cmd);
             steps.Add(scriptStep);
 
             SetScriptSteps(steps);

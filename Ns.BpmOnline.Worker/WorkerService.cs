@@ -7,16 +7,15 @@ using System.Linq;
 using System.ServiceProcess;
 using RabbitMQ.Client;
 using Ns.BpmOnline.Worker.Executors;
+using System.Configuration;
 
 namespace Ns.BpmOnline.Worker
 {
-    
 
     public partial class WorkerService : ServiceBase
     {
 
         private List<IRabbitConsumer> _consumers;
-        private ServerElement targetBpmServer;
 
         public WorkerService()
         {
@@ -25,24 +24,21 @@ namespace Ns.BpmOnline.Worker
 
         protected override void OnStart(string[] args)
         {
-
-            targetBpmServer = Config.GetBpmServer("TargetHost");
-
-            
+            System.IO.Directory.SetCurrentDirectory(System.AppDomain.CurrentDomain.BaseDirectory);
             RegisterConsumers();
-
         }
 
 
         private void RegisterConsumers()
         {
+            string workerName = ConfigurationManager.AppSettings["workerName"];
             IConnection connection = RabbitConnector.GetConnection();
             _consumers = new List<IRabbitConsumer>()
             {
                 //new CommandConsumer(connection, new BpmProcessExecutor(targetBpmServer), new ProcessExecutorRabbitSettings()),
                 //new CommandConsumer(connection, new BpmServiceExecutor(targetBpmServer), new ServiceExecutorRabbitSettings()),
-                new CommandConsumer(connection, new UpdateFilesExecutor(targetBpmServer), new UpdateFilesRabbitSettings()),
-                new CommandConsumer(connection, new BpmUpdateExecutor(targetBpmServer), new UpdateExecutorRabbitSettings())
+                new CommandConsumer(connection, new UpdateFilesExecutor(workerName), new UpdateFilesRabbitSettings()),
+                new CommandConsumer(connection, new UpdateExecutor(workerName), new UpdateExecutorRabbitSettings())
             };
         }
 

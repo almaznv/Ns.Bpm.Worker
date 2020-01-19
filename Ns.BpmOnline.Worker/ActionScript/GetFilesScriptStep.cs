@@ -18,7 +18,7 @@ namespace Ns.BpmOnline.Worker.ActionScript
         private string WorkingDirectory { get; set; }
         private Dictionary<string, string> Parameters { get; set; }
 
-        public GetFilesScriptStep(ServerElement Server, Dictionary<string, string> parameters) : base(Server)
+        public GetFilesScriptStep(Dictionary<string, string> parameters) : base()
         {
             WorkingDirectory = GetByKey(parameters, "Cmd");
             Parameters = parameters;
